@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡単MBTI診断 - 4問で判定</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .question-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .question-container.active {
+            display: block;
+        }
+        
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+        
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .result {
+            display: none;
+            animation: fadeIn 0.7s ease-in;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .mbti-type {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .mbti-description {
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .twitter-btn {
+            background: #1DA1F2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .twitter-btn:hover {
+            background: #1991db;
+            transform: translateY(-2px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .question {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>簡単MBTI診断</h1>
+        <p class="subtitle">4つの質問であなたの性格タイプを診断します</p>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="question-container active" id="question1">
+            <div class="question">友人と過ごすパーティーと一人で読書をする夜、どちらを選びますか？</div>
+            <div class="options">
+                <div class="option" onclick="answer(1, 'E')">
+                    パーティーで友人たちと楽しく過ごしたい
+                </div>
+                <div class="option" onclick="answer(1, 'I')">
+                    静かに一人で読書を楽しみたい
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question2">
+            <div class="question">新しい情報を理解するとき、あなたはどちらの方法を好みますか？</div>
+            <div class="options">
+                <div class="option" onclick="answer(2, 'S')">
+                    具体的な事実やデータを詳しく調べる
+                </div>
+                <div class="option" onclick="answer(2, 'N')">
+                    全体的なパターンや可能性を考える
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question3">
+            <div class="question">重要な決定をするとき、何を最も重視しますか？</div>
+            <div class="options">
+                <div class="option" onclick="answer(3, 'T')">
+                    論理的な分析と客観的な事実
+                </div>
+                <div class="option" onclick="answer(3, 'F')">
+                    人々の気持ちや価値観への影響
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question4">
+            <div class="question">日常生活において、あなたはどちらのスタイルを好みますか？</div>
+            <div class="options">
+                <div class="option" onclick="answer(4, 'J')">
+                    計画を立てて予定通りに進める
+                </div>
+                <div class="option" onclick="answer(4, 'P')">
+                    自然な流れに任せて柔軟に対応する
+                </div>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            <div class="mbti-type" id="mbtiType"></div>
+            <div class="mbti-description" id="mbtiDescription"></div>
+            <div class="share-buttons">
+                <button class="twitter-btn" onclick="shareToTwitter()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                    Twitterで共有
+                </button>
+            </div>
+            <button class="restart-btn" onclick="restart()">もう一度診断する</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let answers = {};
+        const totalQuestions = 4;
+        
+        const mbtiDescriptions = {
+            'INTJ': '建築家型 - 独創的で決断力があり、長期的な視野を持つ戦略家',
+            'INTP': '論理学者型 - 革新的な思考者で、知識欲旺盛な理論家',
+            'ENTJ': '指揮官型 - 大胆で想像力豊かな強力なリーダー',
+            'ENTP': '討論者型 - 聡明で好奇心旺盛な思想家',
+            'INFJ': '提唱者型 - 静かで神秘的だが、人々を励ます理想主義者',
+            'INFP': '仲介者型 - 詩的で親切な利他主義者',
+            'ENFJ': '主人公型 - カリスマ性があり、人々を励ます生まれながらのリーダー',
+            'ENFP': '運動家型 - 熱心で創造的な社交家',
+            'ISTJ': '管理者型 - 実用的で事実重視の信頼できる人',
+            'ISFJ': '擁護者型 - 非常に献身的で心温かい保護者',
+            'ESTJ': '幹部型 - 優秀な管理者で、物事や人々を管理する能力に長けている',
+            'ESFJ': '領事型 - 非常に思いやりがあり、社交的で人気者',
+            'ISTP': '巨匠型 - 大胆で実用的な実験者',
+            'ISFP': '冒険家型 - 柔軟性があり魅力的な芸術家',
+            'ESTP': '起業家型 - 賢くてエネルギッシュで、非常に鋭い洞察力を持つ',
+            'ESFP': 'エンターテイナー型 - 自発的でエネルギッシュで熱心な人'
+        };
+        
+        function answer(questionNum, choice) {
+            answers[questionNum] = choice;
+            
+            const currentContainer = document.getElementById(`question${questionNum}`);
+            currentContainer.classList.remove('active');
+            
+            updateProgressBar();
+            
+            if (questionNum < totalQuestions) {
+                setTimeout(() => {
+                    currentQuestion++;
+                    const nextContainer = document.getElementById(`question${currentQuestion}`);
+                    nextContainer.classList.add('active');
+                }, 300);
+            } else {
+                setTimeout(showResult, 300);
+            }
+        }
+        
+        function updateProgressBar() {
+            const progress = (Object.keys(answers).length / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function showResult() {
+            const mbtiType = answers[1] + answers[2] + answers[3] + answers[4];
+            const description = mbtiDescriptions[mbtiType];
+            
+            document.getElementById('mbtiType').textContent = mbtiType;
+            document.getElementById('mbtiDescription').textContent = description;
+            document.getElementById('result').classList.add('show');
+        }
+        
+        function shareToTwitter() {
+            const mbtiType = document.getElementById('mbtiType').textContent;
+            const description = document.getElementById('mbtiDescription').textContent;
+            const tweetText = `私のMBTIタイプは${mbtiType}です！\n${description}\n\n#MBTI診断 #性格診断`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+            window.open(twitterUrl, '_blank');
+        }
+        
+        function restart() {
+            answers = {};
+            currentQuestion = 1;
+            
+            document.querySelectorAll('.question-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            document.getElementById('question1').classList.add('active');
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('progressBar').style.width = '0%';
+        }
+    </script>
+</body>
+</html>

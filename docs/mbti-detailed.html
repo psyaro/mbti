@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>詳細MBTI診断 - 16問で判定</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .question-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .question-container.active {
+            display: block;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-size: 1em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+        
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .result {
+            display: none;
+            animation: fadeIn 0.7s ease-in;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .mbti-type {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .mbti-description {
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .detailed-breakdown {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .dimension {
+            margin-bottom: 15px;
+        }
+        
+        .dimension-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .dimension-score {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .score-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.8s ease;
+            border-radius: 10px;
+        }
+        
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .navigation-links {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .nav-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .spoiler {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            border-left: 4px solid #f39c12;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin: 15px 0 25px 0;
+            font-size: 0.85em;
+            font-style: italic;
+            text-align: left;
+            position: relative;
+            opacity: 0.8;
+        }
+        
+        .spoiler:before {
+            content: '💡 ';
+            margin-right: 5px;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .twitter-btn {
+            background: #1DA1F2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .twitter-btn:hover {
+            background: #1991db;
+            transform: translateY(-2px);
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .question {
+                font-size: 1.1em;
+            }
+            
+            .navigation-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>詳細MBTI診断</h1>
+        <p class="subtitle">16の質問で正確にあなたの性格タイプを診断します</p>
+        
+        <div class="navigation-links">
+            <a href="index.html" class="nav-btn">簡単版（4問）に戻る</a>
+        </div>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <!-- E/I Questions (4 questions) -->
+        <div class="question-container active" id="question1">
+            <div class="question-number">質問 1/16</div>
+            <div class="question">パーティーで新しい人と出会うとき、あなたは？</div>
+            <div class="spoiler">この質問は外向性(E)か内向性(I)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(1, 'E', 2)">積極的に自分から話しかけて友達になろうとする</div>
+                <div class="option" onclick="answer(1, 'I', 2)">誰かに紹介してもらうまで待つ</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question2">
+            <div class="question-number">質問 2/16</div>
+            <div class="question">週末の理想的な過ごし方は？</div>
+            <div class="spoiler">この質問も外向性(E)か内向性(I)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(2, 'E', 2)">友人たちと外出して活動的に過ごす</div>
+                <div class="option" onclick="answer(2, 'I', 2)">家で一人の時間を楽しむ</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question3">
+            <div class="question-number">質問 3/16</div>
+            <div class="question">会議やグループディスカッションで、あなたは？</div>
+            <div class="spoiler">この質問も外向性(E)か内向性(I)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(3, 'E', 2)">積極的に発言して議論をリードする</div>
+                <div class="option" onclick="answer(3, 'I', 2)">まず聞いて、考えてから発言する</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question4">
+            <div class="question-number">質問 4/16</div>
+            <div class="question">エネルギーを回復するには？</div>
+            <div class="spoiler">この質問も外向性(E)か内向性(I)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(4, 'E', 2)">人と話したり交流したりする</div>
+                <div class="option" onclick="answer(4, 'I', 2)">一人で静かに過ごす</div>
+            </div>
+        </div>
+        
+        <!-- S/N Questions (4 questions) -->
+        <div class="question-container" id="question5">
+            <div class="question-number">質問 5/16</div>
+            <div class="question">新しいプロジェクトを始めるとき、まず何をしますか？</div>
+            <div class="spoiler">この質問は感覚型(S)か直観型(N)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(5, 'S', 2)">具体的な手順やリソースを調べる</div>
+                <div class="option" onclick="answer(5, 'N', 2)">全体的なビジョンや可能性を考える</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question6">
+            <div class="question-number">質問 6/16</div>
+            <div class="question">話を聞くとき、あなたが注目するのは？</div>
+            <div class="spoiler">この質問も感覚型(S)か直観型(N)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(6, 'S', 2)">具体的な事実や詳細</div>
+                <div class="option" onclick="answer(6, 'N', 2)">話の背景にある意味やパターン</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question7">
+            <div class="question-number">質問 7/16</div>
+            <div class="question">記憶に残りやすいのは？</div>
+            <div class="spoiler">この質問も感覚型(S)か直観型(N)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(7, 'S', 2)">実際に経験した具体的な出来事</div>
+                <div class="option" onclick="answer(7, 'N', 2)">印象的なアイデアや概念</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question8">
+            <div class="question-number">質問 8/16</div>
+            <div class="question">学習するとき、あなたは？</div>
+            <div class="spoiler">この質問も感覚型(S)か直観型(N)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(8, 'S', 2)">段階的に順序立てて学ぶ</div>
+                <div class="option" onclick="answer(8, 'N', 2)">全体像を理解してから詳細に進む</div>
+            </div>
+        </div>
+        
+        <!-- T/F Questions (4 questions) -->
+        <div class="question-container" id="question9">
+            <div class="question-number">質問 9/16</div>
+            <div class="question">友人が困っているとき、あなたは？</div>
+            <div class="spoiler">この質問は思考型(T)か感情型(F)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(9, 'T', 2)">問題を分析して実用的な解決策を提案する</div>
+                <div class="option" onclick="answer(9, 'F', 2)">まず共感して感情的なサポートを提供する</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question10">
+            <div class="question-number">質問 10/16</div>
+            <div class="question">批判を受けたとき、あなたは？</div>
+            <div class="spoiler">この質問も思考型(T)か感情型(F)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(10, 'T', 2)">客観的に内容を分析して改善点を見つける</div>
+                <div class="option" onclick="answer(10, 'F', 2)">感情的に影響を受けて、関係性を気にする</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question11">
+            <div class="question-number">質問 11/16</div>
+            <div class="question">チームで作業するとき、重視するのは？</div>
+            <div class="spoiler">この質問も思考型(T)か感情型(F)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(11, 'T', 2)">効率性と結果の質</div>
+                <div class="option" onclick="answer(11, 'F', 2)">チームの調和と全員の満足</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question12">
+            <div class="question-number">質問 12/16</div>
+            <div class="question">難しい決断をするとき、最終的に頼るのは？</div>
+            <div class="spoiler">この質問も思考型(T)か感情型(F)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(12, 'T', 2)">論理的な分析と客観的な判断</div>
+                <div class="option" onclick="answer(12, 'F', 2)">直感と価値観に基づく判断</div>
+            </div>
+        </div>
+        
+        <!-- J/P Questions (4 questions) -->
+        <div class="question-container" id="question13">
+            <div class="question-number">質問 13/16</div>
+            <div class="question">旅行の計画を立てるとき、あなたは？</div>
+            <div class="spoiler">この質問は判断型(J)か知覚型(P)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(13, 'J', 2)">詳細な予定表を作成して準備する</div>
+                <div class="option" onclick="answer(13, 'P', 2)">大まかな方向性だけ決めて、あとは現地で決める</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question14">
+            <div class="question-number">質問 14/16</div>
+            <div class="question">締切が近づいているプロジェクトに対して？</div>
+            <div class="spoiler">この質問も判断型(J)か知覚型(P)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(14, 'J', 2)">早めに取り組んで余裕を持って完成させる</div>
+                <div class="option" onclick="answer(14, 'P', 2)">締切直前のプレッシャーで最高の成果を出す</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question15">
+            <div class="question-number">質問 15/16</div>
+            <div class="question">日常のスケジュール管理について？</div>
+            <div class="spoiler">この質問も判断型(J)か知覚型(P)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(15, 'J', 2)">きっちりとスケジュールを決めて守る</div>
+                <div class="option" onclick="answer(15, 'P', 2)">柔軟に変更できる余裕を残しておく</div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question16">
+            <div class="question-number">質問 16/16</div>
+            <div class="question">予期しない変更や出来事に対して？</div>
+            <div class="spoiler">この質問も判断型(J)か知覚型(P)かを測定しています。</div>
+            <div class="options">
+                <div class="option" onclick="answer(16, 'J', 2)">ストレスを感じて元の計画に戻ろうとする</div>
+                <div class="option" onclick="answer(16, 'P', 2)">新しいチャンスとして楽しんで対応する</div>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            <div class="mbti-type" id="mbtiType"></div>
+            <div class="mbti-description" id="mbtiDescription"></div>
+            
+            <div class="detailed-breakdown" id="breakdown">
+                <h3 style="margin-bottom: 15px; color: #333;">詳細分析</h3>
+                <div class="dimension">
+                    <div class="dimension-label" id="eiLabel"></div>
+                    <div class="dimension-score">
+                        <div class="score-bar" id="eiBar"></div>
+                        <div class="score-text" id="eiScore"></div>
+                    </div>
+                </div>
+                <div class="dimension">
+                    <div class="dimension-label" id="snLabel"></div>
+                    <div class="dimension-score">
+                        <div class="score-bar" id="snBar"></div>
+                        <div class="score-text" id="snScore"></div>
+                    </div>
+                </div>
+                <div class="dimension">
+                    <div class="dimension-label" id="tfLabel"></div>
+                    <div class="dimension-score">
+                        <div class="score-bar" id="tfBar"></div>
+                        <div class="score-text" id="tfScore"></div>
+                    </div>
+                </div>
+                <div class="dimension">
+                    <div class="dimension-label" id="jpLabel"></div>
+                    <div class="dimension-score">
+                        <div class="score-bar" id="jpBar"></div>
+                        <div class="score-text" id="jpScore"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="share-buttons">
+                <button class="twitter-btn" onclick="shareToTwitter()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                    Twitterで共有
+                </button>
+            </div>
+            
+            <div class="navigation-links">
+                <a href="index.html" class="nav-btn">簡単版（4問）を試す</a>
+                <button class="restart-btn" onclick="restart()">もう一度診断する</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let answers = {};
+        const totalQuestions = 16;
+        
+        const mbtiDescriptions = {
+            'INTJ': '建築家型 - 独創的で決断力があり、長期的な視野を持つ戦略家。複雑な問題を体系的に解決することを得意とし、将来のビジョンを実現するために計画的に行動します。',
+            'INTP': '論理学者型 - 革新的な思考者で、知識欲旺盛な理論家。新しいアイデアや理論を探求することに情熱を持ち、論理的な一貫性を重視します。',
+            'ENTJ': '指揮官型 - 大胆で想像力豊かな強力なリーダー。組織を効率的に運営し、長期的な目標に向かってチームを導く天性のリーダーシップを持ちます。',
+            'ENTP': '討論者型 - 聡明で好奇心旺盛な思想家。新しい可能性を探求し、創造的な解決策を見つけることを楽しみます。',
+            'INFJ': '提唱者型 - 静かで神秘的だが、人々を励ます理想主義者。深い洞察力を持ち、他人の成長を支援することに情熱を注ぎます。',
+            'INFP': '仲介者型 - 詩的で親切な利他主義者。自分の価値観を大切にし、調和を求めながら創造的な表現を追求します。',
+            'ENFJ': '主人公型 - カリスマ性があり、人々を励ます生まれながらのリーダー。他人の可能性を見抜き、成長をサポートすることに長けています。',
+            'ENFP': '運動家型 - 熱心で創造的な社交家。新しい人との出会いやアイデアの探求を通じて、人生に活力と意味を見出します。',
+            'ISTJ': '管理者型 - 実用的で事実重視の信頼できる人。責任感が強く、伝統的な方法で確実に物事を成し遂げます。',
+            'ISFJ': '擁護者型 - 非常に献身的で心温かい保護者。他人のニーズに敏感で、周囲の人々をサポートすることに喜びを感じます。',
+            'ESTJ': '幹部型 - 優秀な管理者で、物事や人々を管理する能力に長けている。効率性と組織の目標達成を重視します。',
+            'ESFJ': '領事型 - 非常に思いやりがあり、社交的で人気者。調和のとれた環境を作り、他人の幸福を気にかけます。',
+            'ISTP': '巨匠型 - 大胆で実用的な実験者。手を使った作業や問題解決を得意とし、柔軟性を重視します。',
+            'ISFP': '冒険家型 - 柔軟性があり魅力的な芸術家。美しさと調和を追求し、自分らしい表現を大切にします。',
+            'ESTP': '起業家型 - 賢くてエネルギッシュで、非常に鋭い洞察力を持つ。現在を楽しみ、実用的な解決策を素早く見つけます。',
+            'ESFP': 'エンターテイナー型 - 自発的でエネルギッシュで熱心な人。人々を楽しませ、ポジティブな雰囲気を作ることが得意です。'
+        };
+        
+        function answer(questionNum, choice, weight = 1) {
+            answers[questionNum] = { choice: choice, weight: weight };
+            
+            const currentContainer = document.getElementById(`question${questionNum}`);
+            currentContainer.classList.remove('active');
+            
+            updateProgressBar();
+            
+            if (questionNum < totalQuestions) {
+                setTimeout(() => {
+                    currentQuestion++;
+                    const nextContainer = document.getElementById(`question${currentQuestion}`);
+                    nextContainer.classList.add('active');
+                }, 300);
+            } else {
+                setTimeout(showResult, 300);
+            }
+        }
+        
+        function updateProgressBar() {
+            const progress = (Object.keys(answers).length / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function calculateDimensionScore(dimension) {
+            let score = 0;
+            let maxScore = 0;
+            
+            const ranges = {
+                'EI': [1, 2, 3, 4],
+                'SN': [5, 6, 7, 8],
+                'TF': [9, 10, 11, 12],
+                'JP': [13, 14, 15, 16]
+            };
+            
+            for (let i of ranges[dimension]) {
+                if (answers[i]) {
+                    maxScore += answers[i].weight;
+                    if ((dimension === 'EI' && answers[i].choice === 'E') ||
+                        (dimension === 'SN' && answers[i].choice === 'S') ||
+                        (dimension === 'TF' && answers[i].choice === 'T') ||
+                        (dimension === 'JP' && answers[i].choice === 'J')) {
+                        score += answers[i].weight;
+                    }
+                }
+            }
+            
+            return Math.round((score / maxScore) * 100);
+        }
+        
+        function showResult() {
+            const eiScore = calculateDimensionScore('EI');
+            const snScore = calculateDimensionScore('SN');
+            const tfScore = calculateDimensionScore('TF');
+            const jpScore = calculateDimensionScore('JP');
+            
+            const e_or_i = eiScore >= 50 ? 'E' : 'I';
+            const s_or_n = snScore >= 50 ? 'S' : 'N';
+            const t_or_f = tfScore >= 50 ? 'T' : 'F';
+            const j_or_p = jpScore >= 50 ? 'J' : 'P';
+            
+            const mbtiType = e_or_i + s_or_n + t_or_f + j_or_p;
+            const description = mbtiDescriptions[mbtiType];
+            
+            document.getElementById('mbtiType').textContent = mbtiType;
+            document.getElementById('mbtiDescription').textContent = description;
+            
+            document.getElementById('eiLabel').textContent = `外向性 (E) vs 内向性 (I)`;
+            document.getElementById('eiBar').style.width = eiScore + '%';
+            document.getElementById('eiScore').textContent = `${e_or_i} ${eiScore}%`;
+            
+            document.getElementById('snLabel').textContent = `感覚 (S) vs 直観 (N)`;
+            document.getElementById('snBar').style.width = snScore + '%';
+            document.getElementById('snScore').textContent = `${s_or_n} ${snScore}%`;
+            
+            document.getElementById('tfLabel').textContent = `思考 (T) vs 感情 (F)`;
+            document.getElementById('tfBar').style.width = tfScore + '%';
+            document.getElementById('tfScore').textContent = `${t_or_f} ${tfScore}%`;
+            
+            document.getElementById('jpLabel').textContent = `判断 (J) vs 知覚 (P)`;
+            document.getElementById('jpBar').style.width = jpScore + '%';
+            document.getElementById('jpScore').textContent = `${j_or_p} ${jpScore}%`;
+            
+            document.getElementById('result').classList.add('show');
+        }
+        
+        function shareToTwitter() {
+            const mbtiType = document.getElementById('mbtiType').textContent;
+            const description = document.getElementById('mbtiDescription').textContent;
+            const tweetText = `詳細MBTI診断の結果：私のタイプは${mbtiType}でした！\\n${description}\\n\\n#MBTI診断 #性格診断 #16問診断`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+            window.open(twitterUrl, '_blank');
+        }
+        
+        function restart() {
+            answers = {};
+            currentQuestion = 1;
+            
+            document.querySelectorAll('.question-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            document.getElementById('question1').classList.add('active');
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('progressBar').style.width = '0%';
+        }
+    </script>
+</body>
+</html>

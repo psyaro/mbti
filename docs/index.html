@@ -162,6 +162,52 @@
             transform: translateY(-2px);
         }
         
+        .navigation-links {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .nav-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .spoiler {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            border-left: 4px solid #f39c12;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin: 15px 0 25px 0;
+            font-size: 0.85em;
+            font-style: italic;
+            text-align: left;
+            position: relative;
+            opacity: 0.8;
+        }
+        
+        .spoiler:before {
+            content: '💡 ';
+            margin-right: 5px;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -187,12 +233,17 @@
         <h1>簡単MBTI診断</h1>
         <p class="subtitle">4つの質問であなたの性格タイプを診断します</p>
         
+        <div class="navigation-links">
+            <a href="mbti-detailed.html" class="nav-btn">詳細版（16問）を試す</a>
+        </div>
+        
         <div class="progress">
             <div class="progress-bar" id="progressBar"></div>
         </div>
         
         <div class="question-container active" id="question1">
             <div class="question">友人と過ごすパーティーと一人で読書をする夜、どちらを選びますか？</div>
+            <div class="spoiler">この質問は内向的か外交的かを聞いています。</div>
             <div class="options">
                 <div class="option" onclick="answer(1, 'E')">
                     パーティーで友人たちと楽しく過ごしたい
@@ -205,6 +256,7 @@
         
         <div class="question-container" id="question2">
             <div class="question">新しい情報を理解するとき、あなたはどちらの方法を好みますか？</div>
+            <div class="spoiler">この質問は感覚型か直観型かを聞いています。</div>
             <div class="options">
                 <div class="option" onclick="answer(2, 'S')">
                     具体的な事実やデータを詳しく調べる
@@ -217,6 +269,7 @@
         
         <div class="question-container" id="question3">
             <div class="question">重要な決定をするとき、何を最も重視しますか？</div>
+            <div class="spoiler">この質問は思考型か感情型かを聞いています。</div>
             <div class="options">
                 <div class="option" onclick="answer(3, 'T')">
                     論理的な分析と客観的な事実
@@ -229,6 +282,7 @@
         
         <div class="question-container" id="question4">
             <div class="question">日常生活において、あなたはどちらのスタイルを好みますか？</div>
+            <div class="spoiler">この質問は判断型か知覚型かを聞いています。</div>
             <div class="options">
                 <div class="option" onclick="answer(4, 'J')">
                     計画を立てて予定通りに進める
